@@ -83,6 +83,79 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
 
+    // --- Customer Details ---
+    customerName: {
+      type: String,
+      required: [true, 'Customer name is required'],
+    },
+    customerMobile: {
+      type: String,
+      required: [true, 'Customer mobile number is required'],
+    },
+    customerEmail: {
+      type: String,
+      required: [true, 'Customer email is required'],
+    },
+    companyName: {
+      type: String,
+      default: '',
+    },
+    city: {
+      type: String,
+      default: '',
+    },
+
+    // --- Travel Context ---
+    flightNumber: {
+      type: String,
+      default: '',
+    },
+    numberOfGuests: {
+      type: Number,
+      default: 1,
+    },
+    vipRequirements: {
+      type: String,
+      default: '',
+    },
+    supportingDocuments: [
+      {
+        type: String,
+      }
+    ],
+
+    // --- Quotation ---
+    quotation: {
+      price: { type: Number, default: 0 },
+      notes: { type: String, default: '' },
+      sentAt: { type: Date },
+      acceptedAt: { type: Date },
+    },
+
+    // --- Operations Team ---
+    operations: {
+      assignedName: { type: String, default: '' },
+      assignedPhone: { type: String, default: '' },
+    },
+
+    // --- Feedback ---
+    feedback: {
+      rating: { type: Number, min: 1, max: 5 },
+      text: { type: String, default: '' },
+      suggestions: { type: String, default: '' },
+      issues: { type: String, default: '' },
+      submittedAt: { type: Date },
+    },
+
+    // --- Timeline History ---
+    timeline: [
+      {
+        status: { type: String, required: true },
+        comment: { type: String, default: '' },
+        timestamp: { type: Date, default: Date.now },
+      }
+    ],
+
     // --- Status ---
     status: {
       type: String,
@@ -116,6 +189,13 @@ bookingSchema.pre('save', async function (next) {
   if (!this.bookingId) {
     const count = await mongoose.model('Booking').countDocuments();
     this.bookingId = `NMS-${String(count + 1).padStart(6, '0')}`;
+  }
+  if (!this.timeline || this.timeline.length === 0) {
+    this.timeline = [{
+      status: this.status || 'pending',
+      comment: 'Booking request submitted successfully.',
+      timestamp: new Date()
+    }];
   }
   next();
 });

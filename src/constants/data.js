@@ -28,9 +28,6 @@ const CITIES = [
     areas: [
       { id: 'mumbai-airport-t1', name: 'Mumbai Airport Terminal 1', type: 'airport' },
       { id: 'mumbai-airport-t2', name: 'Mumbai Airport Terminal 2', type: 'airport' },
-      { id: 'mumbai-cst', name: 'CST (Chhatrapati Shivaji Terminus)', type: 'railway' },
-      { id: 'mumbai-dadar', name: 'Dadar Railway Station', type: 'railway' },
-      { id: 'mumbai-borivali', name: 'Borivali Bus Depot', type: 'bus' },
       { id: 'mumbai-andheri', name: 'Andheri', type: 'area' },
       { id: 'mumbai-bandra', name: 'Bandra', type: 'area' },
       { id: 'mumbai-juhu', name: 'Juhu', type: 'area' },
@@ -44,8 +41,6 @@ const CITIES = [
     state: 'Maharashtra',
     areas: [
       { id: 'solapur-airport', name: 'Solapur Airport', type: 'airport' },
-      { id: 'solapur-station', name: 'Solapur Railway Station', type: 'railway' },
-      { id: 'solapur-cbs', name: 'Solapur CBS', type: 'bus' },
       { id: 'solapur-laxmi-peth', name: 'Laxmi Peth', type: 'area' },
       { id: 'solapur-vijapur', name: 'Vijapur Road', type: 'area' },
       { id: 'solapur-akkalkot', name: 'Akkalkot Road', type: 'area' },
@@ -58,9 +53,6 @@ const CITIES = [
     areas: [
       { id: 'delhi-igi-t1', name: 'IGI Airport Terminal 1', type: 'airport' },
       { id: 'delhi-igi-t3', name: 'IGI Airport Terminal 3', type: 'airport' },
-      { id: 'delhi-ndls', name: 'New Delhi Railway Station', type: 'railway' },
-      { id: 'delhi-hazrat', name: 'Hazrat Nizamuddin Station', type: 'railway' },
-      { id: 'delhi-isbt-kashmere', name: 'ISBT Kashmere Gate', type: 'bus' },
       { id: 'delhi-connaught', name: 'Connaught Place', type: 'area' },
       { id: 'delhi-saket', name: 'Saket', type: 'area' },
       { id: 'delhi-karol-bagh', name: 'Karol Bagh', type: 'area' },
@@ -165,7 +157,12 @@ const ADDONS = [
 
 const BOOKING_STATUSES = {
   PENDING: 'pending',
+  UNDER_REVIEW: 'under_review',
+  QUOTATION_SENT: 'quotation_sent',
+  QUOTATION_ACCEPTED: 'quotation_accepted',
   CONFIRMED: 'confirmed',
+  OPERATIONS_ASSIGNED: 'operations_assigned',
+  TEAM_ON_THE_WAY: 'team_on_the_way',
   IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',

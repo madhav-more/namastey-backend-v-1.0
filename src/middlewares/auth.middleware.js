@@ -42,4 +42,16 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { protect };
+/**
+ * Authorize specified roles.
+ */
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      throw new ApiError(403, `User role '${req.user?.role}' is not authorized to perform this operation.`);
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorize };
