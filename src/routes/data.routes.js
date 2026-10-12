@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { CITIES, LOCATION_TYPES, GREETING_PACKAGES, CULTURAL_THEMES, ADDONS } = require('../constants/data');
+const { CITIES, LOCATION_TYPES, CULTURAL_THEMES, ADDONS } = require('../constants/data');
 const ApiResponse = require('../utils/ApiResponse');
+const asyncHandler = require('../utils/asyncHandler');
+const catalogue = require('../services/catalogue.service');
+router.get('/catalogue', asyncHandler(async (_req, res) => {
+  const [services, packages] = await Promise.all([catalogue.listServices(), catalogue.listPackages()]);
+  res.json(new ApiResponse(200, 'Catalogue fetched.', { services, packages, cities: CITIES, themes: CULTURAL_THEMES, addons: ADDONS }));
+}));
+router.get('/services', asyncHandler(async (_req, res) => {
+  res.json(new ApiResponse(200, 'Services fetched.', { services: await catalogue.listServices() }));
+}));
 
 /**
  * @desc    Get all cities with areas
@@ -23,9 +32,9 @@ router.get('/location-types', (req, res) => {
  * @desc    Get greeting packages
  * @route   GET /api/v1/data/packages
  */
-router.get('/packages', (req, res) => {
-  res.status(200).json(new ApiResponse(200, 'Packages fetched.', { packages: GREETING_PACKAGES }));
-});
+router.get('/packages', asyncHandler(async (req, res) => {
+  res.status(200).json(new ApiResponse(200, 'Packages fetched.', { packages: await catalogue.listPackages(req.query.serviceId) }));
+}));
 
 /**
  * @desc    Get cultural themes

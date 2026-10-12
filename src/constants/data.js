@@ -158,6 +158,9 @@ const ADDONS = [
 const BOOKING_STATUSES = {
   PENDING: 'pending',
   UNDER_REVIEW: 'under_review',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected',
+  PAYMENT_PENDING: 'payment_pending',
   QUOTATION_SENT: 'quotation_sent',
   QUOTATION_ACCEPTED: 'quotation_accepted',
   CONFIRMED: 'confirmed',

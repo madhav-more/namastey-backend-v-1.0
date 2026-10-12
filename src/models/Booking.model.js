@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { randomBytes } = require('crypto');
 const { BOOKING_STATUSES } = require('../constants/data');
 
 const bookingSchema = new mongoose.Schema(
@@ -12,6 +13,17 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    service: { id: String, name: String, kind: String },
+    review: { decision: String, reason: String, reviewedAt: Date, reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } },
+    payment: {
+      choice: { type: String, enum: ['pay_now', 'pay_later'] },
+      status: { type: String, enum: ['unpaid', 'paid', 'refund_pending', 'refunded'], default: 'unpaid' },
+      amount: { type: Number, default: 0, min: 0 },
+      reference: String, paidAt: Date, verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      refundReference: String, refundedAt: Date,
+    },
+    requestId: { type: String },
+    requestHash: { type: String },
 
     // --- Location Details ---
     fromCity: {
@@ -126,6 +138,11 @@ const bookingSchema = new mongoose.Schema(
 
     // --- Quotation ---
     quotation: {
+      version: { type: Number, default: 0 },
+      providerName: String,
+      providerPhone: String,
+      paymentInstructions: String,
+      allowPayLater: { type: Boolean, default: true },
       price: { type: Number, default: 0 },
       notes: { type: String, default: '' },
       sentAt: { type: Date },
@@ -153,6 +170,7 @@ const bookingSchema = new mongoose.Schema(
         status: { type: String, required: true },
         comment: { type: String, default: '' },
         timestamp: { type: Date, default: Date.now },
+        actor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       }
     ],
 
@@ -187,8 +205,7 @@ const bookingSchema = new mongoose.Schema(
 // Auto-generate booking ID before save
 bookingSchema.pre('save', async function (next) {
   if (!this.bookingId) {
-    const count = await mongoose.model('Booking').countDocuments();
-    this.bookingId = `NMS-${String(count + 1).padStart(6, '0')}`;
+    this.bookingId = `NMS-${randomBytes(8).toString('hex').toUpperCase()}`;
   }
   if (!this.timeline || this.timeline.length === 0) {
     this.timeline = [{
@@ -203,5 +220,6 @@ bookingSchema.pre('save', async function (next) {
 // Index for fast user queries
 bookingSchema.index({ user: 1, createdAt: -1 });
 bookingSchema.index({ status: 1 });
+bookingSchema.index({ user: 1, requestId: 1 }, { unique: true, partialFilterExpression: { requestId: { $type: 'string' } } });
 
 module.exports = mongoose.model('Booking', bookingSchema);

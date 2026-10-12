@@ -57,6 +57,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 app.use('/api/v1/data', dataRoutes);
+app.use('/api/v1/admin/catalogue', require('./src/routes/catalogue.routes'));
 
 // --- Error Handling ---
 app.use(notFound);

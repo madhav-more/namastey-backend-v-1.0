@@ -12,23 +12,25 @@ const createBookingSchema = Joi.object({
   toArea: Joi.string().trim().required()
     .messages({ 'any.required': 'To area is required' }),
   dropAddress: Joi.string().trim().allow('').optional(),
-  scheduledDate: Joi.date().iso().greater('now').required()
+  serviceId: Joi.string().trim().required(),
+  requestId: Joi.string().guid({ version: ['uuidv4'] }).required(),
+  scheduledDate: Joi.date().iso().required()
     .messages({
       'date.greater': 'Scheduled date must be in the future',
       'any.required': 'Scheduled date is required',
     }),
-  scheduledTime: Joi.string().trim().required()
+  scheduledTime: Joi.string().pattern(/^([01]\d|2[0-3]):[0-5]\d$/).required()
     .messages({ 'any.required': 'Scheduled time is required' }),
   packageId: Joi.string().trim().required()
     .messages({ 'any.required': 'Package is required' }),
   culturalThemeId: Joi.string().trim().allow('').optional(),
-  addonIds: Joi.array().items(Joi.string().trim()).optional().default([]),
+  addonIds: Joi.array().items(Joi.string().trim()).unique().max(20).optional().default([]),
   specialInstructions: Joi.string().trim().max(500).allow('').optional(),
 
   // New Client & Guest Details
-  customerName: Joi.string().trim().required()
+  customerName: Joi.string().trim().max(100).required()
     .messages({ 'any.required': 'Name is required' }),
-  customerMobile: Joi.string().trim().required()
+  customerMobile: Joi.string().trim().pattern(/^\+?[0-9 ()-]{7,20}$/).required()
     .messages({ 'any.required': 'Mobile number is required' }),
   customerEmail: Joi.string().email().trim().required()
     .messages({ 'any.required': 'Email is required', 'string.email': 'Invalid email format' }),
@@ -37,7 +39,7 @@ const createBookingSchema = Joi.object({
   flightNumber: Joi.string().trim().allow('').optional(),
   numberOfGuests: Joi.number().integer().min(1).optional().default(1),
   vipRequirements: Joi.string().trim().allow('').optional(),
-  supportingDocuments: Joi.array().items(Joi.string().trim()).optional().default([]),
+  supportingDocuments: Joi.array().items(Joi.string().uri({ scheme: ['https'] }).max(2048)).max(10).optional().default([]),
 });
 
 const cancelBookingSchema = Joi.object({
@@ -45,15 +47,23 @@ const cancelBookingSchema = Joi.object({
 });
 
 const sendQuotationSchema = Joi.object({
-  price: Joi.number().positive().required()
+  price: Joi.number().positive().precision(2).required()
     .messages({ 'any.required': 'Quotation price is required', 'number.positive': 'Price must be positive' }),
-  notes: Joi.string().trim().allow('').optional(),
+  notes: Joi.string().trim().max(2000).allow('').default(''),
+  providerName: Joi.string().trim().max(100).required(),
+  providerPhone: Joi.string().trim().pattern(/^\+?[0-9 ()-]{7,20}$/).required(),
+  paymentInstructions: Joi.string().trim().max(2000).allow('').default(''),
+  allowPayLater: Joi.boolean().default(true),
 });
+const reviewSchema = Joi.object({ decision: Joi.string().valid('accepted', 'rejected').required(), reason: Joi.string().trim().max(1000).allow('').when('decision', { is: 'rejected', then: Joi.string().trim().min(3).required() }) });
+const acceptQuotationSchema = Joi.object({ paymentChoice: Joi.string().valid('pay_now', 'pay_later').required(), quoteVersion: Joi.number().integer().min(0).required() });
+const paymentSchema = Joi.object({ amount: Joi.number().positive().precision(2).required(), reference: Joi.string().trim().min(3).max(200).required() });
+const refundSchema = Joi.object({ reference: Joi.string().trim().min(3).max(200).required() });
 
 const assignOperationsSchema = Joi.object({
-  assignedName: Joi.string().trim().required()
+  assignedName: Joi.string().trim().max(100).required()
     .messages({ 'any.required': 'Operations staff name is required' }),
-  assignedPhone: Joi.string().trim().required()
+  assignedPhone: Joi.string().trim().pattern(/^\+?[0-9 ()-]{7,20}$/).required()
     .messages({ 'any.required': 'Operations staff phone is required' }),
 });
 
@@ -68,10 +78,11 @@ const submitFeedbackSchema = Joi.object({
 const updateStatusSchema = Joi.object({
   status: Joi.string().valid(...Object.values(BOOKING_STATUSES)).required()
     .messages({ 'any.required': 'Status is required', 'any.only': 'Invalid booking status' }),
-  comment: Joi.string().trim().allow('').optional(),
+  comment: Joi.string().trim().max(1000).allow('').optional(),
 });
 
 module.exports = {
+  reviewSchema, acceptQuotationSchema, paymentSchema, refundSchema,
   createBookingSchema,
   cancelBookingSchema,
   sendQuotationSchema,

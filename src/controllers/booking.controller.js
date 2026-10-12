@@ -45,7 +45,7 @@ const getBookingDetail = asyncHandler(async (req, res) => {
  * @route   PUT /api/v1/bookings/:id/quotation
  */
 const sendQuotation = asyncHandler(async (req, res) => {
-  const booking = await bookingService.sendQuotation(req.params.id, req.body);
+  const booking = await bookingService.sendQuotation(req.params.id, req.body, req.user._id);
   res.status(200).json(new ApiResponse(200, 'Quotation sent successfully.', { booking }));
 });
 
@@ -54,7 +54,7 @@ const sendQuotation = asyncHandler(async (req, res) => {
  * @route   PUT /api/v1/bookings/:id/accept-quotation
  */
 const acceptQuotation = asyncHandler(async (req, res) => {
-  const booking = await bookingService.acceptQuotation(req.params.id, req.user._id);
+  const booking = await bookingService.acceptQuotation(req.params.id, req.user._id, req.body);
   res.status(200).json(new ApiResponse(200, 'Quotation accepted.', { booking }));
 });
 
@@ -63,7 +63,7 @@ const acceptQuotation = asyncHandler(async (req, res) => {
  * @route   PUT /api/v1/bookings/:id/status
  */
 const updateBookingStatus = asyncHandler(async (req, res) => {
-  const booking = await bookingService.updateBookingStatus(req.params.id, req.body);
+  const booking = await bookingService.updateBookingStatus(req.params.id, req.body, req.user._id);
   res.status(200).json(new ApiResponse(200, 'Booking status updated.', { booking }));
 });
 
@@ -72,7 +72,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
  * @route   PUT /api/v1/bookings/:id/assign
  */
 const assignOperationsTeam = asyncHandler(async (req, res) => {
-  const booking = await bookingService.assignOperationsTeam(req.params.id, req.body);
+  const booking = await bookingService.assignOperationsTeam(req.params.id, req.body, req.user._id);
   res.status(200).json(new ApiResponse(200, 'Operations team assigned.', { booking }));
 });
 
